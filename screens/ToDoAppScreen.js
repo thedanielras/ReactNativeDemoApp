@@ -1,40 +1,41 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Button,
   Dimensions,
   Animated,
   Pressable,
-} from "react-native";
-import { useFonts } from "expo-font";
-import { SwipeListView } from "react-native-swipe-list-view";
+} from 'react-native';
+import { useFonts } from 'expo-font';
+import { SwipeListView } from 'react-native-swipe-list-view';
+import { TextInput } from 'react-native-gesture-handler';
+import { Button } from 'react-native-paper';
 
-import HeaderWrapper from "../components/HeaderWrapper";
-import { TextInput } from "react-native-gesture-handler";
+import HeaderWrapper from '../components/HeaderWrapper';
+import { useTheme } from '../components/ThemeManager';
 
 const initialState = [
   {
     id: 1,
-    text: "Read a book",
+    text: 'Read a book',
     isCompleted: true,
   },
   {
     id: 2,
-    text: "Take the trash out",
+    text: 'Take the trash out',
     isCompleted: false,
   },
 ];
 
 const actionTypes = {
-  ADD: "ADD",
-  REMOVE: "REMOVE",
-  MARKCOMPLETE: "MARKCOMPLETE",
+  ADD: 'ADD',
+  REMOVE: 'REMOVE',
+  MARKCOMPLETE: 'MARKCOMPLETE',
 };
 
 const reducer = function (state, action) {
-  console.log("ToDoApp: Dispatch Action -> " + action.type);
+  LOG('Dispatch Action -> ' + action.type);
 
   let newState;
   switch (action.type) {
@@ -60,7 +61,8 @@ const reducer = function (state, action) {
 
 export default function ToDoAppScreen({ route, navigation }) {
   const [todos, dispatch] = useReducer(reducer, initialState);
-  const [newToDoValue, setNewToDoValue] = useState("New To Do");
+  const [newToDoValue, setNewToDoValue] = useState('New To Do');
+  const { theme } = useTheme();
 
   const closeRow = function (rowMap, rowKey) {
     if (rowMap[rowKey]) {
@@ -73,7 +75,7 @@ export default function ToDoAppScreen({ route, navigation }) {
     let key = String(itemId);
     closeRow(rowMap, key);
     dispatch({
-      type: "REMOVE",
+      type: 'REMOVE',
       index: todos.findIndex((item) => item.id == itemId),
     });
   };
@@ -83,17 +85,18 @@ export default function ToDoAppScreen({ route, navigation }) {
     let key = String(itemId);
     closeRow(rowMap, key);
     dispatch({
-      type: "MARKCOMPLETE",
+      type: 'MARKCOMPLETE',
       index: todos.findIndex((item) => item.id == itemId),
       value: !data.item.isCompleted,
     });
   };
 
-  // useEffect(() => {
-  //   return () => {
-  //     console.log("unmounted");
-  //   }
-  // })
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+  });
 
   return (
     <View style={{ flex: 1 }}>
@@ -106,7 +109,13 @@ export default function ToDoAppScreen({ route, navigation }) {
             data={todos}
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item, index }) => {
-              return <VisibleRow item={item} index={index} />;
+              return (
+                <ToDoItem
+                  item={item}
+                  index={index}
+                  isLast={todos.length - 1 === index}
+                />
+              );
             }}
             renderHiddenItem={(data, rowMap) => (
               <HiddenRow
@@ -126,19 +135,20 @@ export default function ToDoAppScreen({ route, navigation }) {
           <View
             style={{
               height: 55,
-              justifyContent: "center",
-              alignItems: "center",
+              justifyContent: 'center',
+              alignItems: 'center',
               marginBottom: 15,
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <TextInput
               style={{
-                width: "60%",
+                width: '60%',
                 borderBottomWidth: 1,
-                borderBottomColor: "#121212",
+                borderBottomColor: theme.onBackground,
+                color: theme.onBackground,
                 padding: 0,
                 paddingLeft: 5,
                 fontSize: 17,
@@ -148,13 +158,18 @@ export default function ToDoAppScreen({ route, navigation }) {
               onChangeText={(val) => setNewToDoValue(val)}
             />
             <Button
-              title="Add"
-              color="#1ba3e3"
-              onPress={() => {
-                dispatch({ type: "ADD", value: newToDoValue });
-                setNewToDoValue("");
+              mode="text"
+              style={{
+                backgroundColor: theme.secondary,
               }}
-            />
+              color={theme.onSecondary}
+              onPress={() => {
+                dispatch({ type: 'ADD', value: newToDoValue });
+                setNewToDoValue('');
+              }}
+            >
+              Add
+            </Button>
           </View>
         </View>
       </HeaderWrapper>
@@ -162,29 +177,40 @@ export default function ToDoAppScreen({ route, navigation }) {
   );
 }
 
-function VisibleRow(props) {
+function ToDoItem(props) {
   const { item } = props;
+  const { theme } = useTheme();
+  const { isLast } = props;
+
+  const styles = StyleSheet.create({
+    todoItem: {
+      backgroundColor: theme.surface,
+      padding: 5,
+      borderBottomWidth: !isLast ? 1 : 0,
+      borderBottomColor: theme.isLight ? '#ddd' : '#ccc',
+      height: 55,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    todoText: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+      textDecorationLine: item.isCompleted ? 'line-through' : 'none',
+      color: theme.onSurface,
+    },
+  });
 
   return (
     <Animated.View>
       <Pressable>
         <View
           style={{
-            ...styles.todo,
-            backgroundColor: item.isCompleted ? "#cffaf7" : "#FFF",
+            ...styles.todoItem,
+            // backgroundColor: item.isCompleted ? '#cffaf7' : '#FFF',
           }}
         >
-          <Text
-            style={{
-              fontSize: 15,
-              fontWeight: "bold",
-              fontStyle: "italic",
-              textDecorationLine: item.isCompleted ? "line-through" : "none",
-              // color: item.isCompleted ? "#DDD" : "#121212",
-            }}
-          >
-            {item.text}
-          </Text>
+          <Text style={styles.todoText}>{item.text}</Text>
         </View>
       </Pressable>
     </Animated.View>
@@ -197,43 +223,43 @@ function HiddenRow(props) {
     <View
       style={{
         height: 55,
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
       }}
     >
       <View
         style={{
           flex: 1,
-          height: "100%",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          backgroundColor: "#2eabff",
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          backgroundColor: '#2eabff',
         }}
       >
         <View
           style={{
             width: 100,
-            height: "100%",
+            height: '100%',
           }}
         >
           <Pressable
             style={{
-              height: "100%",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
+              height: '100%',
+              width: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
             onPress={onComplete}
           >
             <Text
               style={{
-                color: "#fff",
-                fontWeight: "bold",
+                color: '#fff',
+                fontWeight: 'bold',
                 fontSize: 14,
                 padding: 5,
               }}
             >
-              {data.item.isCompleted ? "Uncomplete" : "Complete"}
+              {data.item.isCompleted ? 'Uncomplete' : 'Complete'}
             </Text>
           </Pressable>
         </View>
@@ -241,36 +267,36 @@ function HiddenRow(props) {
       <View
         style={{
           flex: 1,
-          height: "100%",
-          alignItems: "flex-end",
-          justifyContent: "center",
-          backgroundColor: "#d6114c",
+          height: '100%',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          backgroundColor: '#d6114c',
         }}
       >
         <View
           style={{
             width: 100,
-            height: "100%",
+            height: '100%',
           }}
         >
           <Pressable
             style={{
-              height: "100%",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
+              height: '100%',
+              width: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
             onPress={onDelete}
           >
             <Text
               style={{
-                color: "#fff",
-                fontWeight: "bold",
+                color: '#fff',
+                fontWeight: 'bold',
                 fontSize: 14,
                 padding: 5,
               }}
             >
-              {"Delete"}
+              {'Delete'}
             </Text>
           </Pressable>
         </View>
@@ -279,20 +305,6 @@ function HiddenRow(props) {
   );
 }
 
-let styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    // justifyContent: "center",
-    // alignItems: "center",
-  },
-  todo: {
-    backgroundColor: "#FFF",
-    padding: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    height: 55,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+const LOG = function(message) {
+  console.log(`To Do App => ${message}`)
+}

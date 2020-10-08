@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ActivityIndicator,
   TextComponent,
-  Button,
-} from "react-native";
-import { useFonts } from "expo-font";
+} from 'react-native';
+import { useFonts } from 'expo-font';
+import { Button } from 'react-native-paper';
 
-import HeaderWrapper from "../components/HeaderWrapper";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
+import HeaderWrapper from '../components/HeaderWrapper';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import { useTheme } from '../components/ThemeManager';
 
 const APIENDPOINT =
-  "https://sv443.net/jokeapi/v2/joke/Programming?type=single&amount=10";
+  'https://sv443.net/jokeapi/v2/joke/Programming?type=single&amount=10';
 const loadJokesAsync = async function () {
-  console.log("ProgrammersJokes App : Start Async Fetch Data");
+  LOG('Start Async Fetching Jokes Data');
   let response = await fetch(APIENDPOINT);
   let json = response.json();
   return json;
@@ -25,6 +26,19 @@ export default function ProgrammersJokesAppScreen({ route, navigation }) {
   const [isLoading, setIsLoading] = useState(true);
   const [jokes, setJokes] = useState([]);
   const [error, setError] = useState(null);
+  const { theme } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 5,
+      paddingBottom: 10,
+      paddingTop: 10,
+    },
+  });
 
   // load jokes
   useEffect(() => {
@@ -39,9 +53,8 @@ export default function ProgrammersJokesAppScreen({ route, navigation }) {
       }
 
       if (jokes && jokes.jokes && jokes.jokes.length) {
-        console.log("ProgrammersJokes App : Data Fetched successfully");
+        LOG('Jokes data fetched successfully');
         setJokes(jokes.jokes);
-        // console.log("jokes", jokes);
         setIsLoading(false);
       }
     };
@@ -55,17 +68,21 @@ export default function ProgrammersJokesAppScreen({ route, navigation }) {
       <View
         style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: theme.background,
         }}
       >
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator
+          size="large"
+          color={theme.isLight ? theme.primary : theme.secondary}
+        />
       </View>
     );
   else if (error)
     return (
       <View>
-        <Text>{"There was an error fetching the data, sorry!"}</Text>
+        <Text>{'There was an error fetching the data, sorry!'}</Text>
       </View>
     );
   return (
@@ -89,19 +106,21 @@ export default function ProgrammersJokesAppScreen({ route, navigation }) {
                   <View
                     style={{
                       paddingBottom: 10,
-                      alignItems: "center",
+                      alignItems: 'center',
                     }}
                   >
                     <Text
                       style={{
                         fontSize: 20,
-                        fontWeight: "bold",
+                        fontWeight: 'bold',
+                        color: theme.onSurface,
                       }}
                     >{`Joke ${index + 1}`}</Text>
                   </View>
 
                   <Text
                     style={{
+                      color: theme.onSurface,
                       fontSize: 14,
                     }}
                   >
@@ -112,13 +131,19 @@ export default function ProgrammersJokesAppScreen({ route, navigation }) {
             }}
             ListFooterComponent={() => {
               return (
-                <View style={{ alignItems: "center" }}>
+                <View style={{ alignItems: 'center', marginBottom: 10 }}>
                   <Button
-                    title="Load Another"
+                    mode="text"
+                    style={{
+                      backgroundColor: theme.secondary,
+                    }}
+                    color={theme.onSecondary}
                     onPress={() => {
                       setIsLoading(true);
                     }}
-                  />
+                  >
+                    Load Another
+                  </Button>
                 </View>
               );
             }}
@@ -129,14 +154,6 @@ export default function ProgrammersJokesAppScreen({ route, navigation }) {
   );
 }
 
-let styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 5,
-    paddingBottom: 10,
-    paddingTop: 10,
-  },
-});
+const LOG = function(message) {
+  console.log(`ProgrammersJokes App => ${message}`);
+}
