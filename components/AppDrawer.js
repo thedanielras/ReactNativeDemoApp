@@ -96,7 +96,7 @@ export default function AppDrawer(props) {
           />
         </View>
         <View>
-          <Text style={{ color: theme.onBackground }}>Version 0.1</Text>
+          <Text style={{ color: theme.onBackground }}>Version 0.2</Text>
         </View>
       </View>
     </DrawerContentScrollView>
