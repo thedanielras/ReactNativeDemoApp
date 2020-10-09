@@ -3,6 +3,9 @@ An app written in react native to experiment and learn, fell free to contribute.
 
 ![App Sample](https://i.ibb.co/CWBwXDn/Screenshot-1.png)
 
+## Run in Expo Client
+https://expo.io/@thedanielras/projects/ReactNativeDemoApp
+
 ## Installation steps
 
 1. Restore node packages  
