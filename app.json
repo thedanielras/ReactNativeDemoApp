@@ -21,6 +21,11 @@
     },
     "web": {
       "favicon": "./assets/icons/favicon.png"
+    },
+    "description": "An app written in react native to experiment and learn, fell free to contribute.",
+    "githubUrl": "https://github.com/thedanielras/ReactNativeDemoApp",
+    "android": {
+      "package": "com.thedanielras.ReactNativeDemoApp"
     }
   }
 }
